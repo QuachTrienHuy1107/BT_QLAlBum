@@ -27,23 +27,6 @@ let setCount = () => {
   return c;
 };
 
-let trangHienTai = 1;
-let soDong = 3;
-
-let pagination = (idNavLink) => {
-  document.getElementById(idNavLink).addEventListener("click", () => {
-    // render(listAlbum.list);
-    let temp = idNavLink.split("_");
-
-    trangHienTai = Number(temp[1]) + 1;
-    let begin = (trangHienTai - 1) * soDong;
-    let end = (trangHienTai - 1) * soDong + soDong;
-
-    let items = listAlbum.list.slice(begin, end);
-    render(items);
-  });
-};
-
 let render = (list) => {
   let contentHTML = list.reduce((content, item, index) => {
     return (content += `<div class="col-md-4" id="album-${index}">
@@ -80,27 +63,6 @@ let render = (list) => {
   }, "");
 
   document.getElementById("listAnh").innerHTML = contentHTML;
-
-  //Pagination
-  let ulPhanTrang = document.getElementById("pagination");
-  ulPhanTrang.innerHTML = "";
-
-  let soTrang = Math.ceil(list.length / soDong);
-
-  for (let i = 0; i < soTrang; i++) {
-    let li = document.createElement("li");
-    li.setAttribute("class", "page-item mx-1");
-    ulPhanTrang.appendChild(li);
-
-    let a = document.createElement("a");
-    a.setAttribute("class", "page-link pageLink");
-    a.setAttribute("id", `trang_${i}`);
-    a.innerHTML = i + 1;
-
-    li.appendChild(a);
-    let items = pagination(`trang_${i}`);
-    console.log(items);
-  }
 };
 
 let resetForm = () => {
@@ -139,19 +101,23 @@ document.getElementById("btnCapNhatAlbum").disabled = true;
 document.getElementById("btnCapNhatAlbum").onclick = () => {
   let arrInput = document.querySelectorAll("input, select");
   let album = new Album();
+  let idd = setCount();
 
   for (let input of arrInput) {
     let { id, value } = input;
-    album = { ...album, [id]: value };
+    album = { ...album, [id]: value, maAlbum: idd };
   }
 
-  listAlbum.chinhSuaAlbum(album, listAlbum.album.maAlbum);
+  if (checkName(album.tenAlbum)) {
+    listAlbum.chinhSuaAlbum(album, listAlbum.album.maAlbum);
 
-  render(listAlbum.list);
-  listAlbum.setLocal();
-  swal("Đã cập nhật thành công", "", "success");
-  resetForm();
-  document.getElementById("btnThemAlbum").disabled = false;
+    render(listAlbum.list);
+    listAlbum.setLocal();
+    swal("Đã cập nhật thành công", "", "success");
+    resetForm();
+    document.getElementById("btnThemAlbum").disabled = false;
+    document.getElementById("btnCapNhatAlbum").disabled = true;
+  }
 };
 
 window.removeAlbum = (a) => {
@@ -171,7 +137,9 @@ window.updateAlbum = (album) => {
     document.getElementById("moTa").value = index.moTa;
     document.getElementById("theLoai").value = index.theLoai;
     document.getElementById("tenAlbum").value = index.tenAlbum;
+
     document.getElementById("btnThemAlbum").disabled = true;
     document.getElementById("btnCapNhatAlbum").disabled = false;
   }
+  console.log(index);
 };
